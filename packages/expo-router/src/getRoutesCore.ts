@@ -950,7 +950,7 @@ function crawlAndAppendInitialRoutesAndEntryFiles(
 }
 
 function getMostSpecific(routes: RouteNode[]) {
-  // This works even tho routes is holey array (e.g it might have index 0 and 2 but not 1)
+  // This works even though routes is a sparse array (e.g it might have index 0 and 2 but not 1)
   // `.length` includes the holes in its count
   return routes[routes.length - 1];
 }
