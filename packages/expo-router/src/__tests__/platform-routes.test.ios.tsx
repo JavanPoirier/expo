@@ -1,9 +1,11 @@
-import { Platform } from 'react-native';
+import { screen } from '@testing-library/react-native';
+import { Platform, Text } from 'react-native';
 
 import { getRoutes } from '../getRoutes';
 import { inMemoryContext } from '../testing-library/context-stubs';
+import { renderRouter } from '../testing-library';
 
-// This test needs to run in a web environment, as it needs to follow the platform extensions for `ctx-web.tsx`
+// This test runs in an iOS environment to follow the platform extensions for iOS and TV.
 
 it(`should only load android and native routes`, () => {
   expect(
@@ -112,4 +114,24 @@ it(`should work with layout routes`, () => {
     route: '',
     type: 'layout',
   });
+});
+
+// Integration test: exercises the actual router-store.tsx fix
+// (Platform.isTV ? 'tv' : Platform.OS).
+// On react-native-tvos, Platform.OS is 'ios' but Platform.isTV is true.
+// The iOS jest preset keeps Platform.OS = 'ios', matching the tvOS runtime.
+it(`should resolve tv routes through renderRouter when Platform.isTV is true`, () => {
+  const originalIsTV = Platform.isTV;
+  (Platform as any).isTV = true;
+
+  try {
+    renderRouter({
+      index: () => <Text>Generic</Text>,
+      'index.tv': () => <Text>TV</Text>,
+    });
+
+    expect(screen.getByText('TV')).toBeOnTheScreen();
+  } finally {
+    (Platform as any).isTV = originalIsTV;
+  }
 });
