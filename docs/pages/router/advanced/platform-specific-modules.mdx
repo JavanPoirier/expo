@@ -15,7 +15,9 @@ There are two ways to use platform-specific extensions:
 
 ### Within src/app directory
 
-Metro bundler's platform-specific extensions (for example, **.android.tsx**, **.ios.tsx**, **.native.tsx**, or **.web.tsx**) are supported in the **src/app** directory only if a **non-platform version** also exists. This ensures that routes are universal across platforms for deep linking.
+Metro bundler's platform-specific extensions (for example, **.android.tsx**, **.ios.tsx**, **.native.tsx**, or **.web.tsx**) are supported in the **src/app** directory. When a platform-specific file has a **non-platform version** alongside it, the non-platform version acts as a fallback for platforms that don't have their own extension.
+
+Platform-specific files can also exist **without** a non-platform fallback in the same directory. This creates a **platform-only route** that is only available on the matching platform. This is useful for placing routes in different navigators or route groups per platform.
 
 Consider the following project structure:
 
@@ -34,6 +36,25 @@ In the above file structure:
 - **\_layout.web.tsx** file is used as a layout on the web and **\_layout.tsx** is used on all other platforms.
 - **index.tsx** file is used as the home page for all platforms.
 - **about.web.tsx** file is used as the about page for the web, and the **about.tsx** file is used on all other platforms.
+
+#### Platform-only routes in different navigators
+
+You can place a platform-specific route in a different part of the file tree without requiring a sibling fallback. This is useful when you want different navigation structures per platform. For example, a route at the root on web but inside a tab navigator on native:
+
+<FileTree
+  files={[
+    'src/app/login.tsx',
+    'src/app/(tabs)/_layout.tsx',
+    'src/app/(tabs)/login.native.tsx',
+    'src/app/(tabs)/home.tsx',
+  ]}
+/>
+
+In the above file structure:
+
+- On **web**, the **/login** route renders **login.tsx** from the root.
+- On **native** (iOS and Android), the **(tabs)/login** route renders **login.native.tsx** under the tab navigator. The root **login.tsx** is also still accessible.
+- **(tabs)/login.native.tsx** does not need a non-platform sibling **(tabs)/login.tsx** — it is treated as a platform-only route.
 
 ### Outside src/app directory
 
