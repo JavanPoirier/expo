@@ -13,9 +13,11 @@ While building your app, you may want to show specific content based on the curr
 
 There are two ways to use platform-specific extensions:
 
+> **info** The **.tv.tsx** extension is supported for [react-native-tvos](https://github.com/react-native-tvos/react-native-tvos). When using react-native-tvos, configure Metro to resolve the `.tv` platform extension and create route files with the **.tv.tsx** suffix. The **.native.tsx** extension also serves as a fallback for the TV platform.
+
 ### Within src/app directory
 
-Metro bundler's platform-specific extensions (for example, **.android.tsx**, **.ios.tsx**, **.native.tsx**, or **.web.tsx**) are supported in the **src/app** directory only if a **non-platform version** also exists. This ensures that routes are universal across platforms for deep linking.
+Metro bundler's platform-specific extensions (for example, **.android.tsx**, **.ios.tsx**, **.native.tsx**, **.web.tsx**, or **.tv.tsx**) are supported in the **src/app** directory only if a **non-platform version** also exists. This ensures that routes are universal across platforms for deep linking.
 
 Consider the following project structure:
 
@@ -37,7 +39,7 @@ In the above file structure:
 
 ### Outside src/app directory
 
-You can create platform-specific files with extensions (for example, **.android.tsx**, **.ios.tsx**, **.native.tsx**, or **.web.tsx**) outside the **src/app** directory and use them from within the **src/app** directory.
+You can create platform-specific files with extensions (for example, **.android.tsx**, **.ios.tsx**, **.native.tsx**, **.web.tsx**, or **.tv.tsx**) outside the **src/app** directory and use them from within the **src/app** directory.
 
 Consider the following project structure:
 

@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { getRoutes } from '../getRoutes';
 import { inMemoryContext } from '../testing-library/context-stubs';
 
-// This test needs to run in a web environment, as it needs to follow the platform extensions for `ctx-web.tsx`
+// This test runs in an iOS environment to follow the platform extensions for iOS and TV.
 
 it(`should only load android and native routes`, () => {
   expect(
@@ -104,6 +104,47 @@ it(`should work with layout routes`, () => {
         initialRouteName: undefined,
         route: '(app)',
         type: 'layout',
+      },
+    ],
+    contextKey: 'expo-router/build/views/Navigator.js',
+    dynamic: null,
+    generated: true,
+    route: '',
+    type: 'layout',
+  });
+});
+
+// Verify that the platform expression used in router-store.tsx
+// (Platform.isTV ? 'tv' : Platform.OS) resolves .tv routes over .ios
+// when running on a tvOS device (Platform.OS = 'ios', Platform.isTV = true).
+it(`should resolve tv routes over ios routes when platform is 'tv'`, () => {
+  expect(
+    getRoutes(
+      inMemoryContext({
+        './(app)/index': () => null,
+        './(app)/page.ts': () => null,
+        './(app)/page.ios.ts': () => null,
+        './(app)/page.tv.ts': () => null,
+      }),
+      { internal_stripLoadRoute: true, platform: 'tv', skipGenerated: true }
+    )
+  ).toEqual({
+    children: [
+      {
+        children: [],
+        contextKey: './(app)/index.js',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/index.js'],
+        route: '(app)/index',
+        type: 'route',
+      },
+      {
+        children: [],
+        contextKey: './(app)/page.tv.ts',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/page.tv.ts'],
+        route: '(app)/page',
+        type: 'route',
       },
     ],
     contextKey: 'expo-router/build/views/Navigator.js',
