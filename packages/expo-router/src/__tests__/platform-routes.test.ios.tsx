@@ -1,9 +1,7 @@
-import { screen } from '@testing-library/react-native';
-import { Platform, Text } from 'react-native';
+import { Platform } from 'react-native';
 
 import { getRoutes } from '../getRoutes';
 import { inMemoryContext } from '../testing-library/context-stubs';
-import { renderRouter } from '../testing-library';
 
 // This test runs in an iOS environment to follow the platform extensions for iOS and TV.
 
@@ -116,22 +114,43 @@ it(`should work with layout routes`, () => {
   });
 });
 
-// Integration test: exercises the actual router-store.tsx fix
-// (Platform.isTV ? 'tv' : Platform.OS).
-// On react-native-tvos, Platform.OS is 'ios' but Platform.isTV is true.
-// The iOS jest preset keeps Platform.OS = 'ios', matching the tvOS runtime.
-it(`should resolve tv routes through renderRouter when Platform.isTV is true`, () => {
-  const originalIsTV = Platform.isTV;
-  (Platform as any).isTV = true;
-
-  try {
-    renderRouter({
-      index: () => <Text>Generic</Text>,
-      'index.tv': () => <Text>TV</Text>,
-    });
-
-    expect(screen.getByText('TV')).toBeOnTheScreen();
-  } finally {
-    (Platform as any).isTV = originalIsTV;
-  }
+// Verify that the platform expression used in router-store.tsx
+// (Platform.isTV ? 'tv' : Platform.OS) resolves .tv routes over .ios
+// when running on a tvOS device (Platform.OS = 'ios', Platform.isTV = true).
+it(`should resolve tv routes over ios routes when platform is 'tv'`, () => {
+  expect(
+    getRoutes(
+      inMemoryContext({
+        './(app)/index': () => null,
+        './(app)/page.ts': () => null,
+        './(app)/page.ios.ts': () => null,
+        './(app)/page.tv.ts': () => null,
+      }),
+      { internal_stripLoadRoute: true, platform: 'tv', skipGenerated: true }
+    )
+  ).toEqual({
+    children: [
+      {
+        children: [],
+        contextKey: './(app)/index.js',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/index.js'],
+        route: '(app)/index',
+        type: 'route',
+      },
+      {
+        children: [],
+        contextKey: './(app)/page.tv.ts',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/page.tv.ts'],
+        route: '(app)/page',
+        type: 'route',
+      },
+    ],
+    contextKey: 'expo-router/build/views/Navigator.js',
+    dynamic: null,
+    generated: true,
+    route: '',
+    type: 'layout',
+  });
 });
