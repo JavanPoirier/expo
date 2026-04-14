@@ -218,9 +218,14 @@ export async function exportEmbedBundleAndAssetsAsync(
     // We optimistically build the server-side API routes code here, to ensure they're
     // valid or to enable parallel deployment in the future (TBD). This is disabled using
     // the explicit `--skip-server` flag.
+    // Server export is only relevant for web — on native platforms (android/ios) the
+    // Metro bundler instance created by exportStandaloneServerAsync holds open handles
+    // (sockets, fs watchers) that prevent the Node.js process from exiting.
+    const isNativePlatform =
+      options.platform === 'android' || options.platform === 'ios';
     const apiRoutesEnabled =
       devServer.isReactServerComponentsEnabled || exp.web?.output === 'server';
-    if (!options.skipServer && apiRoutesEnabled) {
+    if (!isNativePlatform && !options.skipServer && apiRoutesEnabled) {
       await exportStandaloneServerAsync(projectRoot, devServer, {
         exp,
         pkg,
@@ -298,7 +303,7 @@ export async function exportEmbedBundleAndAssetsAsync(
     }
     throw error;
   } finally {
-    devServerManager.stopAsync();
+    await devServerManager.stopAsync();
   }
 }
 
