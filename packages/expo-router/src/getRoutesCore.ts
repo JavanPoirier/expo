@@ -730,9 +730,9 @@ function getFileMeta(
     } else if (platformExtension === 'native' && options.platform !== 'web') {
       // `native` is allow but isn't as specific as the platform
       specificity = 1;
-    } else if (platformExtension !== options.platform) {
-      // Somehow we have a platform extension that doesn't match the options.platform and it isn't native
-      // This is an invalid file and we will ignore it
+    } else {
+      // The platform extension doesn't match the current platform and isn't a recognised fallback —
+      // ignore this file.
       specificity = -1;
     }
 
