@@ -157,7 +157,6 @@ export function useStore(
     ...config,
     skipGenerated: true,
     ignoreEntryPoints: true,
-    platform: Platform.isTV ? 'tv' : Platform.OS,
     preserveRedirectAndRewrites: true,
   });
 
