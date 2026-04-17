@@ -154,3 +154,117 @@ it(`should resolve tv routes over ios routes when platform is 'tv'`, () => {
     type: 'layout',
   });
 });
+
+// Verify that .ios routes are used as a fallback when no .tv route exists (tvOS runs on iOS).
+it(`should fall back to .ios routes when no .tv route exists and platform is 'tv'`, () => {
+  expect(
+    getRoutes(
+      inMemoryContext({
+        './(app)/index': () => null,
+        './(app)/page.ts': () => null,
+        './(app)/page.ios.ts': () => null,
+      }),
+      { internal_stripLoadRoute: true, platform: 'tv', skipGenerated: true }
+    )
+  ).toEqual({
+    children: [
+      {
+        children: [],
+        contextKey: './(app)/index.js',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/index.js'],
+        route: '(app)/index',
+        type: 'route',
+      },
+      {
+        children: [],
+        contextKey: './(app)/page.ios.ts',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/page.ios.ts'],
+        route: '(app)/page',
+        type: 'route',
+      },
+    ],
+    contextKey: 'expo-router/build/views/Navigator.js',
+    dynamic: null,
+    generated: true,
+    route: '',
+    type: 'layout',
+  });
+});
+
+// Verify the full specificity chain on tvOS: .tv > .ios > .native > base
+it(`should follow the full specificity chain: .tv > .ios > .native > base when platform is 'tv'`, () => {
+  // With only .native available, it should be used as fallback
+  expect(
+    getRoutes(
+      inMemoryContext({
+        './(app)/index': () => null,
+        './(app)/page.ts': () => null,
+        './(app)/page.native.ts': () => null,
+      }),
+      { internal_stripLoadRoute: true, platform: 'tv', skipGenerated: true }
+    )
+  ).toEqual({
+    children: [
+      {
+        children: [],
+        contextKey: './(app)/index.js',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/index.js'],
+        route: '(app)/index',
+        type: 'route',
+      },
+      {
+        children: [],
+        contextKey: './(app)/page.native.ts',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/page.native.ts'],
+        route: '(app)/page',
+        type: 'route',
+      },
+    ],
+    contextKey: 'expo-router/build/views/Navigator.js',
+    dynamic: null,
+    generated: true,
+    route: '',
+    type: 'layout',
+  });
+
+  // With both .ios and .native, .ios wins because tvOS is an iOS platform
+  expect(
+    getRoutes(
+      inMemoryContext({
+        './(app)/index': () => null,
+        './(app)/page.ts': () => null,
+        './(app)/page.ios.ts': () => null,
+        './(app)/page.native.ts': () => null,
+      }),
+      { internal_stripLoadRoute: true, platform: 'tv', skipGenerated: true }
+    )
+  ).toEqual({
+    children: [
+      {
+        children: [],
+        contextKey: './(app)/index.js',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/index.js'],
+        route: '(app)/index',
+        type: 'route',
+      },
+      {
+        children: [],
+        contextKey: './(app)/page.ios.ts',
+        dynamic: null,
+        entryPoints: ['expo-router/build/views/Navigator.js', './(app)/page.ios.ts'],
+        route: '(app)/page',
+        type: 'route',
+      },
+    ],
+    contextKey: 'expo-router/build/views/Navigator.js',
+    dynamic: null,
+    generated: true,
+    route: '',
+    type: 'layout',
+  });
+});

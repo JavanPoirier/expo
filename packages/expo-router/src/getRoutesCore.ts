@@ -720,7 +720,12 @@ function getFileMeta(
       // This used by typed routes, sitemap, etc
       specificity = -1;
     } else if (platformExtension === options.platform) {
-      // If the platform extension is the same as the options.platform, then it is the most specific
+      // If the platform extension is the same as the options.platform, then it is the most specific.
+      // When platform is 'tv', we reserve slot 2 for .ios (tvOS runs on iOS), so bump tv to 3.
+      specificity = options.platform === 'tv' ? 3 : 2;
+    } else if (platformExtension === 'ios' && options.platform === 'tv') {
+      // tvOS runs on iOS hardware, so .ios files are a secondary fallback for TV.
+      // This sits between the exact .tv match (3) and the generic .native fallback (1).
       specificity = 2;
     } else if (platformExtension === 'native' && options.platform !== 'web') {
       // `native` is allow but isn't as specific as the platform
